@@ -8,11 +8,9 @@ def traveling_checker(func):
 
     def inner(*args):
         target = args[0]
-        count = args[1]
-        writer = args[2]
         if target not in traveled:
             traveled.append(target)
-            result = func(target, count, writer)
+            result = func(*args)
             return result
         return []
 
