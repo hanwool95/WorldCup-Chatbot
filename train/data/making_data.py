@@ -22,8 +22,8 @@ class Query:
     def insert_answer(self, answer: str):
         self.answers.append(answer)
 
-    def load_team_data(self):
-        with open('../../crawling/team.csv', newline="") as file:
+    def load_team_data(self, path):
+        with open(path, newline="") as file:
             reader = csv.reader(file, delimiter=',')
             for row in reader:
                 country_name = row[0]
@@ -31,14 +31,14 @@ class Query:
                 self.code_dict[country_name] = fifa_code
                 self.teams_information.append(row)
 
-    def load_player_data(self):
-        with open('../../crawling/player.csv', newline="") as file:
+    def load_player_data(self, path):
+        with open(path, newline="") as file:
             reader = csv.reader(file, delimiter=',')
             for row in reader:
                 self.players_information.append(row)
 
-    def load_match_data(self):
-        with open('../../crawling/match.csv', newline="") as file:
+    def load_match_data(self, path):
+        with open(path, newline="") as file:
             reader = csv.reader(file, delimiter=',')
             for row in reader:
                 self.matches_information.append(row)
@@ -172,9 +172,9 @@ class Query:
 
 if __name__ == "__main__":
     query = Query()
-    query.load_team_data()
-    query.load_player_data()
-    query.load_match_data()
+    query.load_team_data('../../crawling/team.csv')
+    query.load_player_data('../../crawling/player.csv')
+    query.load_match_data('../../crawling/match.csv')
     query.make_query_answer()
 
     print(len(query.queries))
