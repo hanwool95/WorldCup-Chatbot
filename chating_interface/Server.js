@@ -9,7 +9,6 @@ const translationClient = new TranslationServiceClient();
 
 const projectId = 'propane-primacy-353119';
 const location = 'global';
-const text = '안녕하세요!';
 
 async function translateKoToEng(text) {
     const request = {
