@@ -11,7 +11,7 @@ batch_size = 8
 num_workers = 5
 
 cuda_condition = torch.cuda.is_available()
-device = torch.device("cuda:0" if cuda_condition else "cpu")
+device = torch.device("cuda" if cuda_condition else "cpu")
 
 retriever = RealmRetriever.from_pretrained("google/realm-orqa-nq-openqa")
 tokenizer = RealmTokenizer.from_pretrained("google/realm-orqa-nq-openqa")
@@ -24,6 +24,9 @@ query.load_match_data('../crawling/match.csv')
 query.make_query_answer()
 
 optim = AdamW(model.parameters(), lr=lr)
+
+import gc
+gc.collect()
 torch.cuda.empty_cache()
 
 for epoch in range(epoch_num):
@@ -31,10 +34,9 @@ for epoch in range(epoch_num):
                            desc=str(epoch),
                            total=len(query.queries))
     for i, question in train_iter:
-        model.train()
         optim.zero_grad()
 
-        question_ids = tokenizer([question], return_tensors='pt')
+        question_ids = tokenizer([question], return_tensors='pt').to(device)
         answer_ids = tokenizer(
             [query.answers[i]],
             add_special_tokens=False,
