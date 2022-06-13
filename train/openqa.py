@@ -10,6 +10,9 @@ lr = 1e-6
 batch_size = 8
 num_workers = 5
 
+cuda_condition = torch.cuda.is_available()
+device = torch.device("cuda:0" if cuda_condition else "cpu")
+
 retriever = RealmRetriever.from_pretrained("google/realm-orqa-nq-openqa")
 tokenizer = RealmTokenizer.from_pretrained("google/realm-orqa-nq-openqa")
 model = RealmForOpenQA.from_pretrained("google/realm-orqa-nq-openqa", retriever=retriever)
@@ -22,8 +25,7 @@ query.make_query_answer()
 
 
 # set gpu
-cuda_condition = torch.cuda.is_available()
-device = torch.device("cuda:0" if cuda_condition else "cpu")
+
 model = model.to(device)
 
 # set optimizer
