@@ -52,7 +52,7 @@ class Craw:
 
     def set_target(self, target: str):
         self.target_name = target
-        self.target_url = "https://en.wikipedia.org/wiki/" + target
+        self.target_url = "https://en.wikipedia.org" + target
 
     def traveling(self):
         print("travleing start")
@@ -79,5 +79,5 @@ class Worker:
 
 
 if __name__ == "__main__":
-    worker = Worker(2, ["FIFA_World_Cup", "2022_FIFA_World_Cup"])
+    worker = Worker(2, ["/wiki/FIFA_World_Cup", "/wiki/2022_FIFA_World_Cup"])
     worker.working()
