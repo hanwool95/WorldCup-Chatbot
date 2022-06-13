@@ -5,7 +5,7 @@ import tqdm
 import torch
 
 version_name = "1"
-epoch_num = 1
+epoch_num = 5
 lr = 1e-6
 batch_size = 8
 num_workers = 5
@@ -52,11 +52,12 @@ for epoch in range(epoch_num):
                            desc=str(epoch),
                            total=len(query.queries))
     for i, question in train_iter:
-
+        model.train()
         optim.zero_grad()
-        question_ids = tokenizer([question], return_tensors="pt")
+
+        question_ids = tokenizer([question], return_tensors='pt')
         answer_ids = tokenizer(
-            query.answers[i],
+            [query.answers[i]],
             add_special_tokens=False,
             return_token_type_ids=False,
             return_attention_mask=False,
