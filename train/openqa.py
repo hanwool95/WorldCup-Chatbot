@@ -13,20 +13,15 @@ num_workers = 5
 cuda_condition = torch.cuda.is_available()
 device = torch.device("cuda:0" if cuda_condition else "cpu")
 
-retriever = RealmRetriever.from_pretrained("google/realm-orqa-nq-openqa")
+retriever = RealmRetriever.from_pretrained("google/realm-orqa-nq-openqa").to(device)
 tokenizer = RealmTokenizer.from_pretrained("google/realm-orqa-nq-openqa")
-model = RealmForOpenQA.from_pretrained("google/realm-orqa-nq-openqa", retriever=retriever)
+model = RealmForOpenQA.from_pretrained("google/realm-orqa-nq-openqa", retriever=retriever).to(device)
 
 query = Query()
 query.load_team_data('../crawling/team.csv')
 query.load_player_data('../crawling/player.csv')
 query.load_match_data('../crawling/match.csv')
 query.make_query_answer()
-
-
-# set gpu
-
-model = model.to(device)
 
 # set optimizer
 param_optim = list(model.named_parameters())
