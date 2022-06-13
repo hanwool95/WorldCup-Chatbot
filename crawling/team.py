@@ -6,8 +6,9 @@ from wiki import Craw
 
 
 class Team_Craw(Craw):
-    def __init__(self):
+    def __init__(self, team_name: str):
         super().__init__()
+        self.team_name = team_name
         self.confederation = ""
         self.head_coach = ""
         self.captain = ""
@@ -27,7 +28,6 @@ class Team_Craw(Craw):
             self.insert_information_from_rows(team_rows)
             players_rows = soup.find_all('tr', 'nat-fs-player')
             self.insert_players_dict_from_rows(players_rows)
-        print(self.players_dict)
 
     def insert_information_from_rows(self, rows: list):
         world_cup_info_flag = False
@@ -82,6 +82,7 @@ class WorldCup_Team:
         self.world_cup_url = "https://en.wikipedia.org/wiki/2022_FIFA_World_Cup"
         self.teams_dict = {}
         self.teams_information = []
+        self.players_information_dict = {}
 
     def find_team_list(self):
         with urllib.request.urlopen(self.world_cup_url) as url:
@@ -96,7 +97,7 @@ class WorldCup_Team:
 
     def search_all_teams(self):
         for team_name, url in self.teams_dict.items():
-            team_crawler = Team_Craw()
+            team_crawler = Team_Craw(team_name)
             team_crawler.set_target(url)
             team_crawler.find_information()
             self.teams_information.append(team_crawler)
@@ -107,8 +108,43 @@ class WorldCup_Team:
             soup = BeautifulSoup(doc, "html.parser")
             matches = soup.find_all('div', 'footballbox')
 
+    def write_team_to_csv(self):
+        with open('team.csv', 'w') as file:
+            writer = csv.writer(file)
+            print("writing team to csv")
+            print(self.teams_information)
+            for team_information in self.teams_information:
+                result = [team_information.team_name, team_information.confederation,
+                          team_information.head_coach, team_information.captain, team_information.fifa_code,
+                          team_information.ranking, team_information.appearances, team_information.best_record]
+
+                writer.writerow(result)
+
+                self.players_information_dict[team_information.team_name] = team_information.players_dict
+
+    def get_player_dict(self) -> dict:
+        return self.players_information_dict
+
+
+class WorldCup_Player:
+    def __init__(self, players_information_dict: dict):
+        self.players_information_dict = players_information_dict
+
+    def write_players_dict_to_csv(self):
+        with open('player.csv', 'w') as file:
+            print("writing player to csv")
+            print(self.players_information_dict)
+            writer = csv.writer(file)
+            for team_name, players_dict in self.players_information_dict.items():
+                for player_name, player_url in players_dict.items():
+                    result = [team_name, player_name, player_url]
+                    writer.writerow(result)
+
 
 if __name__ == "__main__":
     crawler = WorldCup_Team()
     crawler.find_team_list()
     crawler.search_all_teams()
+    crawler.write_team_to_csv()
+    player = WorldCup_Player(crawler.get_player_dict())
+    player.write_players_dict_to_csv()
