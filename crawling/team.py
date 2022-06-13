@@ -58,7 +58,7 @@ class Team_Craw(Craw):
                         print("appearances: ", self.appearances)
                 elif information_type == "Best result":
                     if world_cup_info_flag:
-                        self.best_record = value
+                        self.best_record = value.split(" ")[0]
                         print("best record: ", self.best_record)
             else:
                 info_header = row.find('th', 'infobox-header')
@@ -71,10 +71,12 @@ class Team_Craw(Craw):
 
     def insert_players_dict_from_rows(self, rows: list):
         for player_row in rows:
+            position = player_row.find('a').text
+            club = player_row.find_all('td')[-1].text.replace("\xa0", "").replace("\n", "")
             player = player_row.find('th').find('a')
             link = player['href']
             player_name = player.text
-            self.players_dict[player_name] = link
+            self.players_dict[player_name] = [position, club, link]
 
 
 class WorldCup_Team:
@@ -170,8 +172,11 @@ class WorldCup_Player:
             print(self.players_information_dict)
             writer = csv.writer(file)
             for team_name, players_dict in self.players_information_dict.items():
-                for player_name, player_url in players_dict.items():
-                    result = [team_name, player_name, player_url]
+                for player_name, player_informations in players_dict.items():
+                    position = player_informations[0]
+                    club = player_informations[1]
+                    link = player_informations[2]
+                    result = [team_name, player_name, position, club, link]
                     writer.writerow(result)
 
 
