@@ -29,7 +29,7 @@ class Team_Craw(Craw):
             self.insert_players_dict_from_rows(players_rows)
         print(self.players_dict)
 
-    def insert_information_from_rows(self, rows):
+    def insert_information_from_rows(self, rows: list):
         world_cup_info_flag = False
         for row in rows:
             infobox = row.find('th', 'infobox-label')
@@ -69,7 +69,7 @@ class Team_Craw(Craw):
                     else:
                         world_cup_info_flag = False
 
-    def insert_players_dict_from_rows(self, rows):
+    def insert_players_dict_from_rows(self, rows: list):
         for player_row in rows:
             player = player_row.find('th').find('a')
             link = player['href']
@@ -77,10 +77,11 @@ class Team_Craw(Craw):
             self.players_dict[player_name] = link
 
 
-class WordCup_Team:
+class WorldCup_Team:
     def __init__(self):
         self.world_cup_url = "https://en.wikipedia.org/wiki/2022_FIFA_World_Cup"
         self.teams_dict = {}
+        self.teams_information = []
 
     def find_team_list(self):
         with urllib.request.urlopen(self.world_cup_url) as url:
@@ -98,6 +99,7 @@ class WordCup_Team:
             team_crawler = Team_Craw()
             team_crawler.set_target(url)
             team_crawler.find_information()
+            self.teams_information.append(team_crawler)
 
     def find_match_list(self):
         with urllib.request.urlopen(self.world_cup_url) as url:
@@ -107,6 +109,6 @@ class WordCup_Team:
 
 
 if __name__ == "__main__":
-    crawler = WordCup_Team()
+    crawler = WorldCup_Team()
     crawler.find_team_list()
     crawler.search_all_teams()
