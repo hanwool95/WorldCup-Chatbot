@@ -83,6 +83,7 @@ class WorldCup_Team:
         self.teams_dict = {}
         self.teams_information = []
         self.players_information_dict = {}
+        self.matches_dict = {}
 
     def find_team_list(self):
         with urllib.request.urlopen(self.world_cup_url) as url:
@@ -108,6 +109,25 @@ class WorldCup_Team:
             soup = BeautifulSoup(doc, "html.parser")
             matches = soup.find_all('div', 'footballbox')
 
+            teams_dict = {}
+
+            for match in matches:
+                time_div = match.find('div', 'fleft')
+                date = time_div.find('div', 'fdate').text.replace("\xa0", " ")
+                time = time_div.find('div', 'ftime').text
+                date_time = date + " " + time
+                home_team_name = match.find('th', 'fhome').text.replace("\xa0", "")
+                away_team_name = match.find('th', 'faway').text.replace("\xa0", "")
+
+                if home_team_name not in teams_dict.keys():
+                    teams_dict[home_team_name] = []
+                teams_dict[home_team_name].append([date_time, away_team_name])
+
+                if away_team_name not in teams_dict.keys():
+                    teams_dict[away_team_name] = []
+                teams_dict[away_team_name].append([date_time, home_team_name])
+            self.matches_dict = teams_dict
+
     def write_team_to_csv(self):
         with open('team.csv', 'w') as file:
             writer = csv.writer(file)
@@ -121,6 +141,20 @@ class WorldCup_Team:
                 writer.writerow(result)
 
                 self.players_information_dict[team_information.team_name] = team_information.players_dict
+
+    def write_matches_to_csv(self):
+        with open('match.csv', 'w') as file:
+            writer = csv.writer(file)
+            print("writing match to csv")
+            for country, matches in self.matches_dict.items():
+
+                for i, match in enumerate(matches):
+                    order = i + 1
+                    date = match[0]
+                    opp = match[1]
+                    result = [country, order, date, opp]
+
+                    writer.writerow(result)
 
     def get_player_dict(self) -> dict:
         return self.players_information_dict
@@ -148,3 +182,5 @@ if __name__ == "__main__":
     crawler.write_team_to_csv()
     player = WorldCup_Player(crawler.get_player_dict())
     player.write_players_dict_to_csv()
+    crawler.find_match_list()
+    crawler.write_matches_to_csv()
