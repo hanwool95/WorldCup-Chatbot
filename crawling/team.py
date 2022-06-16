@@ -20,14 +20,17 @@ class Team_Craw(Craw):
 
     def find_information(self):
         print(self.target_url)
-        with urllib.request.urlopen(self.target_url) as url:
-            doc = url.read()
-            soup = BeautifulSoup(doc, "html.parser")
-            infobox = soup.find_all('table', 'infobox')[0]
-            team_rows = infobox.find_all('tr')
-            self.insert_information_from_rows(team_rows)
-            players_rows = soup.find_all('tr', 'nat-fs-player')
-            self.insert_players_dict_from_rows(players_rows)
+        try:
+            with urllib.request.urlopen(self.target_url) as url:
+                doc = url.read()
+                soup = BeautifulSoup(doc, "html.parser")
+                infobox = soup.find_all('table', 'infobox')[0]
+                team_rows = infobox.find_all('tr')
+                self.insert_information_from_rows(team_rows)
+                players_rows = soup.find_all('tr', 'nat-fs-player')
+                self.insert_players_dict_from_rows(players_rows)
+        except:
+            print("error on ", self.target_url)
 
     def insert_information_from_rows(self, rows: list):
         world_cup_info_flag = False
@@ -139,8 +142,8 @@ class WorldCup_Team:
                 result = [team_information.team_name, team_information.confederation,
                           team_information.head_coach, team_information.captain, team_information.fifa_code,
                           team_information.ranking, team_information.appearances, team_information.best_record]
-
-                writer.writerow(result)
+                if team_information.confederation:
+                    writer.writerow(result)
 
                 self.players_information_dict[team_information.team_name] = team_information.players_dict
 
