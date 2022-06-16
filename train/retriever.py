@@ -16,6 +16,7 @@ class WorldCup_Retriever:
             reader = csv.reader(file)
             for row in reader:
                 self.append_texts_from_link(row[0])
+        self.make_block_from_texts()
 
     def append_texts_from_link(self, link: str):
         try:
@@ -24,7 +25,7 @@ class WorldCup_Retriever:
                 doc = url.read()
                 soup = BeautifulSoup(doc, "html.parser")
                 Draw_content = soup.find('div', id='bodyContent').text
-                self.texts.append(Draw_content)
+                self.texts.append(bytes(Draw_content, 'utf-8'))
         except:
             print("error url: ", link)
 
