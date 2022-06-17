@@ -2,8 +2,15 @@ from typing import Union
 from pydantic import BaseModel
 from transformers import RealmRetriever, RealmTokenizer, RealmForOpenQA
 from fastapi import FastAPI
+import pickle
+import numpy as np
 
+
+#retriever = RealmRetriever.from_pretrained("google/realm-orqa-nq-openqa")
+with open('../train/retriever.p', 'rb') as file:    # james.p 파일을 바이너리 읽기 모드(rb)로 열기
+    Docs_Retriever = pickle.load(file)
 retriever = RealmRetriever.from_pretrained("google/realm-orqa-nq-openqa")
+retriever.block_records = np.append(retriever.block_records, Docs_Retriever.block_records)
 tokenizer = RealmTokenizer.from_pretrained("google/realm-orqa-nq-openqa")
 #model = RealmForOpenQA.from_pretrained("google/realm-orqa-nq-openqa", retriever=retriever)
 model = RealmForOpenQA.from_pretrained("../train/output/1", retriever=retriever)

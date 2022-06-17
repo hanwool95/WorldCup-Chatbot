@@ -1,10 +1,12 @@
-from transformers import RealmRetriever, RealmTokenizer, RealmForOpenQA, AdamW
+from transformers import RealmTokenizer, RealmForOpenQA, RealmConfig, AdamW, RealmRetriever
 from data.making_data import Query
+import numpy as np
 
 import tqdm
 import torch
+import pickle
 
-version_name = "1"
+version_name = "3"
 epoch_num = 5
 lr = 1e-6
 batch_size = 8
@@ -13,9 +15,20 @@ num_workers = 5
 cuda_condition = torch.cuda.is_available()
 device = torch.device("cuda" if cuda_condition else "cpu")
 
+with open('retriever.p', 'rb') as file:    # james.p 파일을 바이너리 읽기 모드(rb)로 열기
+    Docs_Retriever = pickle.load(file)
+
+# config = RealmConfig()
+# config.num_block_records = len(Docs_Retriever.block_records)
+# config.searcher_beam_size = 2
+# model = RealmForOpenQA(config, retriever=Docs_Retriever).to(device)
+
 retriever = RealmRetriever.from_pretrained("google/realm-orqa-nq-openqa")
+retriever.block_records = np.append(retriever.block_records, Docs_Retriever.block_records)
+
 tokenizer = RealmTokenizer.from_pretrained("google/realm-orqa-nq-openqa")
-model = RealmForOpenQA.from_pretrained("google/realm-orqa-nq-openqa", retriever=retriever).to(device)
+# model = RealmForOpenQA.from_pretrained("google/realm-orqa-nq-openqa", retriever=retriever).to(device)
+model = RealmForOpenQA.from_pretrained("output/1", retriever=retriever).to(device)
 
 query = Query()
 query.load_team_data('../crawling/team.csv')
@@ -50,5 +63,6 @@ for epoch in range(epoch_num):
 
         loss.backward()
         optim.step()
+        model.train()
 
 model.save_pretrained('output/'+version_name)
