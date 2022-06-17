@@ -20,6 +20,7 @@ python crawling/team.py
 
 <b>Training Data Set</b><br>
 <pre>
+python train/retriever.py
 python train/openqa.py
 </pre>
 
