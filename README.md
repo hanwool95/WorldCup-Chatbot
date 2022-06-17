@@ -15,6 +15,7 @@ npm install
 
 <pre>
 python crawling/team.py
+python crawling/wiki.py
 </pre>
 
 
@@ -31,5 +32,5 @@ cd api
 uvicorn api:app --reload
 </pre>
 
-chatbot
+chatbot<br>
 <a href="127.0.0.1:3737/">127.0.0.1:3737/</a>
